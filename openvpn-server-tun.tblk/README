@@ -1,0 +1,13 @@
+# These files must appear in this directory: 
+# 
+# dh4096.pem		ta.key
+# ca.crt		server-domainname.crt
+# config.ovpn		server-domainname.key
+
+# Install from the easy-rsa-tunnelblick directory with these permissions:
+
+sudo install -m 644 ./easy-rsa-tunnelblick/keys/ca.crt ./osx-openvpn-server-tun.tblk
+sudo install -m 600 ./easy-rsa-tunnelblick/keys/dh4096.pem ./osx-openvpn-server-tun.tblk
+sudo install -m 644 ./easy-rsa-tunnelblick/keys/server-domainname.crt ./osx-openvpn-server-tun.tblk
+sudo install -m 600 ./easy-rsa-tunnelblick/keys/server-domainname.key ./osx-openvpn-server-tun.tblk
+sudo install -m 600 ./easy-rsa-tunnelblick/keys/ta.key ./osx-openvpn-server-tun.tblk
