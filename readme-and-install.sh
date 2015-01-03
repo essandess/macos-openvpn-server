@@ -115,7 +115,7 @@ install -m 644 -B .orig $OPENVPN_INSTALL/openvpn-server-tun.tblk/config.ovpn.osx
 rm $OPENVPN_INSTALL/openvpn-server-tun.tblk/README $OPENVPN_INSTALL/openvpn-server-tun.tblk/config.ovpn.osxfortress
 open $OPENVPN_INSTALL/openvpn-server-tun.tblk
 
-# Use a text editor to add the certificate ca.crt and ta.crt to the client .ovpn file
+# Use a text editor to add the certificate ca.crt and ta.key to the client .ovpn file
 open -e $OPENVPN_INSTALL/openvpn-client-tun.ovpn	# or emacs, nano, vi, etc.
 
 # Mail yourself the encrypted .p12 file for use on iOS devices
