@@ -95,6 +95,11 @@ sudo install -m 600 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/server-domainname
 sudo install -m 600 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/ta.key $OPENVPN_INSTALL/osx-openvpn-server-tun.tblk
 sudo chmod -R $USER $OPENVPN_INSTALL/osx-openvpn-server-tun.tblk
 
+sudo mkdir '/Library/Application Support/vpn'
+sudo install -m 755 osx-openvpn-server/enable-vpn-forward-nat.sh '/Library/Application Support/vpn'
+sudo install -m 644 net.openvpn.enable-vpn-forward-nat.plist /Library/LaunchDaemons
+sudo launchctl load -w /Library/LaunchDaemons/net.openvpn.enable-vpn-forward-nat.plist
+
 # Configure your router to forward port udp port 443 to the OpenVPN server
 
 # Configure the server's config.ovpn file to specifiy the server IP on the LAN
