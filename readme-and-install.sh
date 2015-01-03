@@ -88,12 +88,12 @@ sudo openssl pkcs12 -export -in client-domainname.crt -inkey client-domainname.k
 
 # Copy the necessary files to the .tblk directory
 # sudo cp -p ca.crt dh4096.pem server-domainname.crt server-domainname.key ta.key $OPENVPN_INSTALL/openvpn-server-tun.tblk
-sudo install -m 644 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/ca.crt $OPENVPN_INSTALL/osx-openvpn-server-tun.tblk
-sudo install -m 600 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/dh4096.pem $OPENVPN_INSTALL/osx-openvpn-server-tun.tblk
-sudo install -m 644 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/server-domainname.crt $OPENVPN_INSTALL/osx-openvpn-server-tun.tblk
-sudo install -m 600 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/server-domainname.key $OPENVPN_INSTALL/osx-openvpn-server-tun.tblk
-sudo install -m 600 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/ta.key $OPENVPN_INSTALL/osx-openvpn-server-tun.tblk
-sudo chmod -R $USER $OPENVPN_INSTALL/osx-openvpn-server-tun.tblk
+sudo install -m 644 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/ca.crt $OPENVPN_INSTALL/openvpn-server-tun.tblk
+sudo install -m 600 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/dh4096.pem $OPENVPN_INSTALL/openvpn-server-tun.tblk
+sudo install -m 644 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/server-domainname.crt $OPENVPN_INSTALL/openvpn-server-tun.tblk
+sudo install -m 600 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/server-domainname.key $OPENVPN_INSTALL/openvpn-server-tun.tblk
+sudo install -m 600 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/ta.key $OPENVPN_INSTALL/openvpn-server-tun.tblk
+sudo chmod -R $USER $OPENVPN_INSTALL/openvpn-server-tun.tblk
 
 sudo mkdir '/Library/Application Support/vpn'
 sudo install -m 755 osx-openvpn-server/enable-vpn-forward-nat.sh '/Library/Application Support/vpn'
@@ -111,6 +111,8 @@ sed -i '' -e 's/10.0.1.3/'`ifconfig en0 | sed -En 's/127.0.0.1//;s/.*inet (addr:
 install -m 644 -B .orig $OPENVPN_INSTALL/openvpn-server-tun.tblk/config.ovpn.osxfortress $OPENVPN_INSTALL/openvpn-server-tun.tblk/config.ovpn
 
 # Load the .tblk file into Tunnelblick; connect/configure the server from Tunnelblick
+# Remove the README and other files that will cause Tunnelblick to fail
+rm $OPENVPN_INSTALL/openvpn-server-tun.tblk/README $OPENVPN_INSTALL/openvpn-server-tun.tblk/config.ovpn.osxfortress
 open $OPENVPN_INSTALL/openvpn-server-tun.tblk
 
 # Use a text editor to add the certificate ca.crt and ta.crt to the client .ovpn file
