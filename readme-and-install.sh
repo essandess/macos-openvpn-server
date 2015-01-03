@@ -7,7 +7,7 @@ OPEN=/usr/bin/open
 CAT=/bin/cat
 MORE=/usr/bin/more
 
-$CAT <<HELPSTRING | $MORE
+$CAT <<'HELPSTRING' | $MORE
 OS X OpenVPN Server and Client Configuration
 
 How to build an OpenVPN VPN server on OS X pfctl and Tunnelblick.
