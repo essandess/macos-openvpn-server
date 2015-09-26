@@ -55,7 +55,7 @@ push "route 10.8.0.0 255.255.255.0"
 
 push "redirect-gateway def1"
 push "dhcp-option DNS 10.0.1.3"
-push "dhcp-option DNS 8.8.8.8"
+; push "dhcp-option DNS 8.8.8.8"
 ; push "dhcp-option DNS 4.4.4.4"
 push "dhcp-option DOMAIN server.domainname.com"
 push "dhcp-option PROXY_AUTO_CONFIG_URL http://proxy.domainname.private/proxy.pac"
