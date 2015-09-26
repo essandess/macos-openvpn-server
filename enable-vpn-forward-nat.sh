@@ -9,7 +9,7 @@ sleep 15
 #
 /usr/sbin/sysctl -w net.inet.ip.fw.enable=1
 /usr/sbin/sysctl -w net.inet.ip.forwarding=1
-#/usr/sbin/sysctl -w net.inet6.ip6.forwarding=1
+/usr/sbin/sysctl -w net.inet6.ip6.forwarding=1
 
 # natd and ipfw are DEPRECATED. Use pfctl(8) instead with nat, e.g.
 # nat on en0 from 10.0.0.0/8 to any -> (en0)
