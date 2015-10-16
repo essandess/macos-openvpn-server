@@ -36,7 +36,7 @@ The commands to install an OpenVPN server on OS X and iOS are:
 
 # Install everything here
 export OPENVPN_INSTALL=~/Backups/OpenVPN
-sudo mkdir -p 
+sudo mkdir -p $OPENVPN_INSTALL
 sudo rsync -va /Applications/Tunnelblick.app/Contents/Resources/easy-rsa-tunnelblick $OPENVPN_INSTALL
 
 # configure easy-rsa
