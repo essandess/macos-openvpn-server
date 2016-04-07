@@ -21,6 +21,27 @@ the only option.
 
 Furthermore, OS X has its PF firewall turned off by default.
 Integrating OpenVPN access within a working OS X firewall provides
-greater security. See the git essandess/osxfortress for a firewall,
-blackhole, and privatizing proxy. Use the server configuration
-config.ovpn.osxfortress for these features.
+greater security.
+
+The VPN is also easily configured to use a privatizing proxy. This is useful to block mobile carriers from adding uniquely identifying HTTP headers used for customer tracking. See, for example, __[
+Does your phone company track you?](http://arstechnica.com/security/2014/11/does-your-phone-company-track-you/)__. The repo [essandess/osxfortress](https://github.com/essandess/osxfortress) provides a firewall,
+blackhole, and privatizing proxy . Use the server configuration
+[config.ovpn.osxfortress](https://github.com/essandess/osx-openvpn-server/blob/master/openvpn-server-tun.tblk/config.ovpn.osxfortress) for these features, including blocking the mobile carrier tracking headers:
+
+```
+# Mobile carrier uniquely identifying headers
+request_header_access MSISDN deny all           # T-Mobile
+request_header_access X-MSISDN deny all         # T-Mobile
+request_header_access X-UIDH deny all           # Verizon
+request_header_access x-up-subno deny all       # AT&T
+request_header_access X-ACR deny all            # AT&T
+request_header_access X-UP-SUBSCRIBER-COS deny all
+request_header_access X-OPWV-DDM-HTTPMISCDD deny all
+request_header_access X-OPWV-DDM-IDENTITY deny all
+request_header_access X-OPWV-DDM-SUBSCRIBER deny all
+request_header_access CLIENTID deny all
+request_header_access X-VF-ACR deny all
+request_header_access X_MTI_USERNAME deny all
+request_header_access X_MTI_EMAIL deny all
+request_header_access X_MTI_EMPID deny all
+```
