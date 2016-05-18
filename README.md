@@ -3,7 +3,9 @@ osx-openvpn-server
 
 # OS X OpenVPN Server and Client Configuration
 
-How to build an OpenVPN VPN server on OS X pfctl and Tunnelblick. This setup will provide a TLS-based VPN server using 4096-bit certificates and UDP port 443, accessible by any OpenVPN client, especially iOS with the OpenVPN app.
+This repo describes how to build an OpenVPN VPN server on OS X using pfctl and Tunnelblick.
+
+This configuration provides a TLS-based VPN server using 4096-bit certificates and UDP port 443, accessible by any OpenVPN client, especially iOS with the OpenVPN app.
 
 ![OpenVPN iPad](OpenVPN_iPad.PNG)
 
