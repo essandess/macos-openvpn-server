@@ -18,8 +18,8 @@ This OpenVPN configuration provides the following advantages:
     * OpenVPN the only certificate-based option between OS X and iOS
     * PPTP-based VPN traffic "[should be considered unencrypted](https://www.cloudcracker.com/blog/2012/07/29/cracking-ms-chap-v2/)"
     * L2TP VPN (available in OS X Server.app) requires a very long random PSK; "[IPSEC-PSK is arguably worse than PPTP … for a dictionary-based attack vector](https://www.cloudcracker.com/blog/2012/07/29/cracking-ms-chap-v2/)"
-* PF-based [firewall security](../osxfortress) on the server
-* Privatizing [Automatic Proxy Configuration](../osxfortress) for all mobile client devices
+* PF-based [firewall security](../../../osxfortress) on the server
+* Privatizing [Automatic Proxy Configuration](../../../osxfortress) for all mobile client devices
     * Mobile device networking through PF firewall security
     * Tracker blocking
     * Ad blocking
@@ -28,7 +28,7 @@ This OpenVPN configuration provides the following advantages:
 ## Privatizing Proxy for Mobile Devices
 
 A privatizing proxy is necessary to block mobile carriers from adding uniquely identifying HTTP headers used for customer tracking. See, for example, __[
-Does your phone company track you?](http://arstechnica.com/security/2014/11/does-your-phone-company-track-you/)__. The repo [essandess/osxfortress](../osxfortress) provides a firewall,
+Does your phone company track you?](http://arstechnica.com/security/2014/11/does-your-phone-company-track-you/)__. The repo [essandess/osxfortress](../../../osxfortress) provides a firewall,
 blackhole, and privatizing proxy . Use the server configuration
 [config.ovpn.osxfortress](openvpn-server-tun.tblk/config.ovpn.osxfortress) for these features, including blocking the mobile carrier tracking headers:
 
