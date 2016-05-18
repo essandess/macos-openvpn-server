@@ -17,7 +17,7 @@ This OpenVPN configuration provides the following advantages:
 * Secure, certificate-based VPN
     * OpenVPN the only certificate-based option between OS X and iOS
     * PPTP-based VPN traffic "[should be considered unencrypted](https://www.cloudcracker.com/blog/2012/07/29/cracking-ms-chap-v2/)"
-    * L2TP VPN (available in OS X Server.app) requires a very long random PSK; "[IPSEC-PSK is arguably worse than PPTP ... for a dictionary-based attack vector](https://www.cloudcracker.com/blog/2012/07/29/cracking-ms-chap-v2/)"
+    * L2TP VPN (available in OS X Server.app) requires a very long random PSK; "[IPSEC-PSK is arguably worse than PPTP … for a dictionary-based attack vector](https://www.cloudcracker.com/blog/2012/07/29/cracking-ms-chap-v2/)"
 * PF-based [firewall security](../osxfortress) on the server
 * Privatizing [Automatic Proxy Configuration](../osxfortress) for all mobile client devices
     * Mobile device networking through PF firewall security
