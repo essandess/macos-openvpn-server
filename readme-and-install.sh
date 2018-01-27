@@ -118,11 +118,17 @@ open $OPENVPN_INSTALL/openvpn-server-tun.tblk
 # Use a text editor to add the certificate ca.crt and ta.key to the client .ovpn file
 open -e $OPENVPN_INSTALL/openvpn-client-tun.ovpn	# or emacs, nano, vi, etc.
 
-# Mail yourself the encrypted .p12 file for use on iOS devices
-# On iOS, click on the email attachment and install this certificate in your Profiles
-uuencode $OPENVPN_INSTALL/keys/client-domainname.p12 client-domainname.p12 | mail -s "client-domainname.p12" myself@myemail.com
+# Install the OpenVPN app on iOS
 
-# Install the OpenVPN app on iOS, then transfer the client OpenVPN file openvpn-client-tun.ovpn
+# Copy the .p12 file to a .ovpn12 file, and add the .ovpn12 file to the iOS OpenVPN app with one of these methods:
+# iTunes: Device>Apps>File Sharing>Add...
+# AirDrop
+# Email: 
+uuencode $OPENVPN_INSTALL/keys/client-domainname.p12 client-domainname.ovpn12 | mail -s "client-domainname.ovpn12" myself@myemail.com
+
+# OpenVPN v1.2.6 uses its own keychain, not the iOS keychain
+
+# Transfer the client OpenVPN file openvpn-client-tun.ovpn
 # to the OpenVPN app using iTunes, Device>Apps>File Sharing>Add...
 open -a iTunes
 
