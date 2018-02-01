@@ -54,13 +54,13 @@ cd $OPENVPN_INSTALL/easy-rsa-tunnelblick
 sudo mkdir -m go-rwx ./keys
 sudo touch ./keys/index.txt
 sudo echo 1 > ./keys/serial
-sudo . ./vars
-sudo ./clean-all
-sudo ./build-ca --pass
-sudo ./build-key-server server-domainname
+. ./vars
+sudo -E ./clean-all
+sudo -E ./build-ca --pass
+sudo -E ./build-key-server server-domainname
 # choose a unique Common Name (CN) for each client
-sudo ./build-key client-domainname
-sudo ./build-dh
+sudo -E ./build-key client-domainname
+sudo -E ./build-dh
 # Use the openvpn executable
 sudo /Applications/Tunnelblick.app/Contents/Resources/openvpn/default --genkey --secret ./keys/ta.key
 
