@@ -74,8 +74,6 @@ tls-cipher TLS-DHE-RSA-WITH-AES-256-CBC-SHA256:TLS-DHE-RSA-WITH-AES-128-CBC-SHA2
 tls-version-min 1.2
 auth SHA512
 
-comp-lzo
-
 max-clients 10
 
 user nobody
