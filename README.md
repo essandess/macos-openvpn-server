@@ -1,9 +1,9 @@
-osx-openvpn-server
+macos-openvpn-server
 ==================
 
-# OS X OpenVPN Server and Client Configuration
+# macOS OpenVPN Server and Client Configuration
 
-This repo describes how to build an OpenVPN VPN server on OS X using pfctl and Tunnelblick.
+This repo describes how to build an OpenVPN VPN server on macOS using pfctl and Tunnelblick.
 
 This configuration provides a TLS-based VPN server using 4096-bit certificates and UDP port 443, accessible by any OpenVPN client, especially iOS with the OpenVPN app.
 
@@ -15,9 +15,9 @@ This OpenVPN configuration provides the following advantages:
 
 * Secure VPN networking for all mobile clients
 * Secure, certificate-based VPN
-    * OpenVPN the only certificate-based option between OS X and iOS
+    * OpenVPN the only certificate-based option between macOS and iOS
     * PPTP-based VPN traffic "[should be considered unencrypted](https://www.cloudcracker.com/blog/2012/07/29/cracking-ms-chap-v2/)"
-    * L2TP VPN (available in OS X Server.app) requires a very long random PSK; "[IPSEC-PSK is arguably worse than PPTP … for a dictionary-based attack vector](https://www.cloudcracker.com/blog/2012/07/29/cracking-ms-chap-v2/)"
+    * L2TP VPN (available in macOS Server.app) requires a very long random PSK; "[IPSEC-PSK is arguably worse than PPTP … for a dictionary-based attack vector](https://www.cloudcracker.com/blog/2012/07/29/cracking-ms-chap-v2/)"
 * PF-based [firewall security](../../../osxfortress) on the server
 * Privatizing [Automatic Proxy Configuration](../../../osxfortress) for all mobile client devices
     * Mobile device networking through PF firewall security
