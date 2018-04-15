@@ -58,7 +58,7 @@ sudo echo 1 > ./keys/serial
 sudo -E ./clean-all
 sudo -E ./build-ca --pass
 sudo -E ./build-key-server server-domainname
-# choose a unique Common Name (CN) for each client
+# choose a unique Common Name (CN) for each client; see notes immediately below for new clients certificates
 sudo -E ./build-key client-domainname
 sudo -E ./build-dh
 # Use the openvpn executable
@@ -68,9 +68,16 @@ sudo /Applications/Tunnelblick.app/Contents/Resources/openvpn/default --genkey -
 # Use the domain name "domainname.com" for the common name
 # Contact email "admin@domainname.com" must match name in CA;
 # otherwise, there will be some X509 error.
+#
+# Example:
+#
+# ...
+# Common Name (eg, your name or your server's hostname) [client-domainname]:domainname.com
+# ...
+# Email Address [admin@domainname.com]:
  
 # For the server-domainname cert, use the default common name
-# "server-domainname".This must also match the client configuration
+# "server-domainname". This must also match the client configuration
 # setting:
 # tls-remote domainname.com
  
