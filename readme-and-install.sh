@@ -40,7 +40,6 @@ sudo mkdir -p $OPENVPN_INSTALL
 sudo rsync -va /Applications/Tunnelblick.app/Contents/Resources/easy-rsa-tunnelblick $OPENVPN_INSTALL
 
 # configure easy-rsa
-cd $OPENVPN_INSTALL
 sudo install -m 755 -B .orig ./vars $OPENVPN_INSTALL
 diff -NaurdwB -I '^ *#.*' $OPENVPN_INSTALL/vars ./vars > /tmp/vars.patch
 sudo patch -p5 $OPENVPN_INSTALL/vars < /tmp/vars.patch
