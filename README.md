@@ -3,7 +3,7 @@ macos-openvpn-server
 
 # macOS OpenVPN Server and Client Configuration
 
-This repo describes how to build an OpenVPN VPN server on macOS using pfctl and Tunnelblick.
+This repo describes how to build an OpenVPN VPN server on macOS using pfctl and [Tunnelblick](../../../../Tunnelblick/Tunnelblick).
 
 This configuration provides a TLS-based VPN server using 4096-bit certificates and UDP port 443, accessible by any OpenVPN client, especially iOS with the OpenVPN app.
 
@@ -24,6 +24,14 @@ This OpenVPN configuration provides the following advantages:
     * Tracker blocking
     * Ad blocking
     * Malware blocking
+
+## [Tunnelblick](../../../../Tunnelblick/Tunnelblick) Configuration
+
+Configure [Tunnelblick](../../../../Tunnelblick/Tunnelblick) settings so that the server connection persists over macOS Fast User Switching. Failure to do this is observed to cause routing problems beyond OpenVPN server accessibility. Use the recommended standard and advanced settings:
+
+| [Tunnelblick](../../../../Tunnelblick/Tunnelblick) Settings |  Advanced… |
+:------------------------------------------------------------:|:-------------------------:
+![Tunnelblick Settings](images/Tunnelblick%20Settings.png)|![Tunnelblick Advanced Settings](images/Tunnelblick%20Advanced%20Settings.png)
 
 ## Privatizing Proxy for Mobile Devices
 
