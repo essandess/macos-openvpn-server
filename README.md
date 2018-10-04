@@ -7,7 +7,7 @@ This repo describes how to build an OpenVPN VPN server on macOS using pfctl and 
 
 This configuration provides a TLS-based VPN server using 4096-bit certificates and UDP port 443, accessible by any OpenVPN client, especially iOS with the OpenVPN app.
 
-![OpenVPN iPad](OpenVPN_iPad.PNG)
+![OpenVPN iPad](images/OpenVPN_iPad.PNG)
 
 ## VPN Configuration Advantages
 
