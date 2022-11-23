@@ -11,64 +11,77 @@ $CAT <<'HELPSTRING' | $MORE
 macOS OpenVPN Server and Client Configuration
 
 How to build an OpenVPN VPN server on macOS pfctl and Tunnelblick.
-This setup will provide a TLS-based VPN server using 4096-bit
+This setup will provide a TLS-based VPN server using EC ed25519
 certificates and UDP port 443, accessible by any OpenVPN client,
 especially iOS with the OpenVPN app.
-
-Why would you want to build your own VPN server when macOS Server
-already comes with a VPN service? To have certificate-based VPN.  One
-VPN technology used by macOS Server is broken and should be avoided
-altogether (Microsoft’s PPTP: ("PPTP traffic should be considered
-unencrypted",
-<https://www.cloudcracker.com/blog/2012/07/29/cracking-ms-chap-v2/>),
-or requires a very long random PSK ("IPSEC-PSK is arguably worse than
-PPTP ever was for a dictionary-based attack vector").  If you want
-secure certificate-based VPN between macOS Server and iOS, OpenVPN is
-the only option.
-
-Furthermore, macOS has its PF firewall turned off by default.
-Integrating OpenVPN access within a working macOS firewall provides
-greater security. See the git essandess/osxfortress for a firewall,
-blackhole, and privatizing proxy. Use the server configuration
-config.ovpn.osxfortress for these features.
 
 The commands to install an OpenVPN server on macOS and iOS are:
 
 # Install everything here
-export OPENVPN_INSTALL=~/Backups/OpenVPN
-sudo mkdir -p $OPENVPN_INSTALL
-sudo rsync -va /Applications/Tunnelblick.app/Contents/Resources/easy-rsa-tunnelblick $OPENVPN_INSTALL
+export OPENVPN_INSTALL=~/Security/OpenVPN
+mkdir -p ${OPENVPN_INSTALL}/pki_backupvars
+mkdir -p ${OPENVPN_INSTALL}/Profiles/Tunnelblick
+mkdir -p ${OPENVPN_INSTALL}/Profiles/OpenVPN-app
+
+# install easy-rsa v. 3, openvpn2, and openssl-1.1 via MacPorts:
+sudo port install openvpn2 easy-rsa openssl-1.1
 
 # configure easy-rsa
-sudo install -m 755 -B .orig ./vars $OPENVPN_INSTALL
-diff -NaurdwB -I '^ *#.*' $OPENVPN_INSTALL/vars ./vars > /tmp/vars.patch
-sudo patch -p5 $OPENVPN_INSTALL/vars < /tmp/vars.patch
+install -m 0755 -B .orig ./vars ${OPENVPN_INSTALL}/pki_backupvars
+
+# edit ${OPENVPN_INSTALL}/pki_backupvars for local instance
+# change: EASYRSA_REQ_COUNTRY, EASYRSA_CA_EXPIRE etc.
+open -e ${OPENVPN_INSTALL}/pki_backupvars	# or emacs, nano, vi, etc.
+
+cd ${OPENVPN_INSTALL}
+easyrsa init-pki
+diff -NaurdwB -I '^ *#.*' ${OPENVPN_INSTALL}/pki_backupvars/vars ./pki/vars > /tmp/vars.patch
+patch -p5 ${OPENVPN_INSTALL}/pki/vars < /tmp/vars.patch
 rm /tmp/vars.patch
 
 # copy the Tunnelblick and client configuration
-rsync -va ./openvpn-server-tun.tblk $OPENVPN_INSTALL
-install -m 600 ./openvpn-client-tun.ovpn $OPENVPN_INSTALL
+rsync -va ./openvpn-server-tun.tblk ${OPENVPN_INSTALL}/Profiles/Tunnelblick
+install -m 0600 ./openvpn-client-tun.ovpn ${OPENVPN_INSTALL}/Profiles/OpenVPN-app
 
 # create the keys
-cd $OPENVPN_INSTALL/easy-rsa-tunnelblick
-sudo mkdir -m go-rwx ./keys
-sudo touch ./keys/index.txt
-sudo echo 1 > ./keys/serial
-. ./vars
-sudo -E ./clean-all
-sudo -E ./build-ca --pass
-sudo -E ./build-key-server server-domainname
-# choose a unique Common Name (CN) for each client; see notes immediately below for new clients certificates
-sudo -E ./build-key client-domainname
-sudo -E ./build-dh
-# Use the openvpn executable
-sudo /Applications/Tunnelblick.app/Contents/Resources/openvpn/default --genkey --secret ./keys/ta.key
 
-# Notes:
-# Use the domain name "domainname.com" for the common name
-# Contact email "admin@domainname.com" must match name in CA;
-# otherwise, there will be some X509 error.
-#
+# dh; tls-auth, tls-crypt
+openvpn2 --genkey secret pki/ta.key
+
+# Client-specific TLS keys
+# https://github.com/TinCanTech/easy-tls
+
+easyrsa build-ca
+
+# <ca>
+openssl x509 -in pki/ca.crt | pbcopy
+# <tls-crypt>
+pbcopy < pki/ta.key
+
+easyrsa gen-req hostname.servername.com nopass
+easyrsa sign-req server hostname.servername.com
+
+easyrsa gen-req my-iPhone
+easyrsa sign-req client client-domainname
+
+# .ovpn12 currently do not work with ECDSA; see:
+# https://forums.openvpn.net/viewtopic.php?p=77248&hilit=OpenSSL%3A+could+not+obtain+signature#p77248
+# https://community.openvpn.net/openvpn/ticket/1024
+if false; then
+    # https://developer.apple.com/forums/thread/697030
+    EASYRSA_OPENSSL=openssl-1.1 easyrsa export-p12 client-domainname
+    # https://openvpn.net/faq/how-do-i-use-a-client-certificate-and-private-key-from-the-ios-keychain/
+    mv pki/private/client-domainname.{p,ovpn}12
+
+# Client certificate decrypted key
+openssl pkey -in pki/private/client-domainname.key -out pki/private/client-domainname.key.decrypted
+
+# unified cert in .ovpn 
+# <cert>
+openssl x509 -in pki/issued/client-domainname.crt -text | pbcopy
+# <key>
+pbcopy < pki/private/client-domainname.key.decrypted
+
 # Example:
 #
 # ...
@@ -76,54 +89,49 @@ sudo /Applications/Tunnelblick.app/Contents/Resources/openvpn/default --genkey -
 # ...
 # Email Address [admin@domainname.com]:
  
-# For the server-domainname cert, use the default common name
-# "server-domainname". This must also match the client configuration
-# setting:
-# tls-remote domainname.com
- 
-# Unnecessary if you already signed with ./build-key[-server]
-# ./sign-req server-domainname
-# ./sign-req client-domainname
- 
-cd $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys
-sudo openssl verify -CAfile ca.crt ca.crt
-sudo openssl verify -CAfile ca.crt server-domainname.crt
-sudo openssl verify -CAfile ca.crt client-domainname.crt
+cd ${OPENVPN_INSTALL}
+openssl verify -CAfile pki/ca.crt pki/ca.crt
+sudo openssl verify -CAfile pki/ca.crt server-domainname.crt
+sudo openssl verify -CAfile pki/ca.crt pki/client-domainname.crt
 
 # Create .p12 client certificates/keys for iOS clients
-sudo openssl pkcs12 -export -in client-domainname.crt -inkey client-domainname.key -certfile ca.crt -name client-domainname -out client-domainname.p12
+# .ovpn12 currently do not work with ECDSA; see:
+# https://forums.openvpn.net/viewtopic.php?p=77248&hilit=OpenSSL%3A+could+not+obtain+signature#p77248
+# https://developer.apple.com/forums/thread/697030
+# openssl-1.1 pkcs12 -export -in pki/issued/client-domainname.crt -inkey pki/private/client-domainname.key -certfile pki/ca.crt -name client-domainname -out pki/private/client-domainname.p12
 
 # Copy the necessary files to the .tblk directory
-# sudo cp -p ca.crt dh4096.pem server-domainname.crt server-domainname.key ta.key $OPENVPN_INSTALL/openvpn-server-tun.tblk
-sudo install -m 644 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/ca.crt $OPENVPN_INSTALL/openvpn-server-tun.tblk
-sudo install -m 600 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/dh4096.pem $OPENVPN_INSTALL/openvpn-server-tun.tblk
-sudo install -m 644 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/server-domainname.crt $OPENVPN_INSTALL/openvpn-server-tun.tblk
-sudo install -m 600 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/server-domainname.key $OPENVPN_INSTALL/openvpn-server-tun.tblk
-sudo install -m 600 $OPENVPN_INSTALL/easy-rsa-tunnelblick/keys/ta.key $OPENVPN_INSTALL/openvpn-server-tun.tblk
-sudo chmod -R $USER $OPENVPN_INSTALL/openvpn-server-tun.tblk
+# cp -p ca.crt server-domainname.crt server-domainname.key ta.key ${OPENVPN_INSTALL}/Profiles/Tunnelblick/openvpn-server-tun.tblk
+install -m 0644 ${OPENVPN_INSTALL}/pki/ca.crt ${OPENVPN_INSTALL}/Profiles/Tunnelblick/openvpn-server-tun.tblk
+install -m 644 ${OPENVPN_INSTALL}/pki/issued/server-domainname.crt ${OPENVPN_INSTALL}/Profiles/Tunnelblick/openvpn-server-tun.tblk
+install -m 0600 ${OPENVPN_INSTALL}/pki/private/server-domainname.key ${OPENVPN_INSTALL}/Profiles/Tunnelblick/openvpn-server-tun.tblk
+install -m 0600 ${OPENVPN_INSTALL}/pki/ta.key ${OPENVPN_INSTALL}/Profiles/Tunnelblick/openvpn-server-tun.tblk
 
-sudo mkdir '/Library/Application Support/vpn'
-sudo install -m 755 osx-openvpn-server/enable-vpn-forward-nat.sh '/Library/Application Support/vpn'
-sudo install -m 644 net.openvpn.enable-vpn-forward-nat.plist /Library/LaunchDaemons
-sudo launchctl load -w /Library/LaunchDaemons/net.openvpn.enable-vpn-forward-nat.plist
+sudo install -m 0644 -B .orig sysctl.conf /etc
+# reboot or set by hand prior to reboot:
+sudo sysctl net.inet.ip.forwarding=1 net.inet6.ip6.forwarding=1
 
 # Configure your router to forward port udp port 443 to the OpenVPN server
 
 # Configure the server's config.ovpn file to specifiy the server IP on the LAN
-# Edit $OPENVPN_INSTALL/openvpn-server-tun.tblk/config.ovpn to relect your NAT configuration
-sed -i '' -e 's/10.0.1.3/'`ifconfig en0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`'/g' $OPENVPN_INSTALL/openvpn-server-tun.tblk/config.ovpn
+# Edit ${OPENVPN_INSTALL}/Profiles/Tunnelblick/openvpn-server-tun.tblk/config.ovpn to relect your NAT configuration
+sed -i '' -e 's/10.0.1.3/'`ifconfig en0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`'/g' ${OPENVPN_INSTALL}/Profiles/Tunnelblick/openvpn-server-tun.tblk/config.ovpn
 # Use config.ovpn.osxfortress with "git clone https://github.com/essandess/osxfortress" for
 # secured, privacy-enhanced features on VPN clients
-sed -i '' -e 's/10.0.1.3/'`ifconfig en0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`'/g' $OPENVPN_INSTALL/openvpn-server-tun.tblk/config.ovpn.osxfortress
-install -m 644 -B .orig $OPENVPN_INSTALL/openvpn-server-tun.tblk/config.ovpn.osxfortress $OPENVPN_INSTALL/openvpn-server-tun.tblk/config.ovpn
+sed -i '' -e 's/10.0.1.3/'`ifconfig en0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`'/g' ${OPENVPN_INSTALL}/Profiles/Tunnelblick/openvpn-server-tun.tblk/config.ovpn.osxfortress
+# install -m 0644 -B .orig ${OPENVPN_INSTALL}/Profiles/Tunnelblick/openvpn-server-tun.tblk/config.ovpn.osxfortress ${OPENVPN_INSTALL}/Profiles/Tunnelblick/openvpn-server-tun.tblk/config.ovpn
 
 # Load the .tblk file into Tunnelblick; connect/configure the server from Tunnelblick
-# Remove the README and other files that will cause Tunnelblick to fail
-rm $OPENVPN_INSTALL/openvpn-server-tun.tblk/README $OPENVPN_INSTALL/openvpn-server-tun.tblk/config.ovpn.osxfortress
-open $OPENVPN_INSTALL/openvpn-server-tun.tblk
+open ${OPENVPN_INSTALL}/Profiles/Tunnelblick/openvpn-server-tun.tblk
 
-# Use a text editor to add the certificate ca.crt and ta.key to the client .ovpn file
-open -e $OPENVPN_INSTALL/openvpn-client-tun.ovpn	# or emacs, nano, vi, etc.
+# Configure pf to use the VPN interface
+# copy the pf.conf file locally, or use MacPorts macos-fortress
+sudo install -m 0644 pf.conf "/Library/Application Support/Tunnelblick/"
+sudo pfctl -ef "/Library/Application Support/Tunnelblick/pf.conf"
+
+# Use a text editor to add the certificates ca.crt, ta.key, and client PKI
+# to the client .ovpn file
+open -e ${OPENVPN_INSTALL}/openvpn-client-tun.ovpn	# or emacs, nano, vi, etc.
 
 # Install the OpenVPN app on iOS
 
@@ -131,13 +139,10 @@ open -e $OPENVPN_INSTALL/openvpn-client-tun.ovpn	# or emacs, nano, vi, etc.
 # iTunes: Device>Apps>File Sharing>Add...
 # AirDrop
 # Email: 
-uuencode $OPENVPN_INSTALL/keys/client-domainname.p12 client-domainname.ovpn12 | mail -s "client-domainname.ovpn12" myself@myemail.com
-
-# OpenVPN v1.2.6 uses its own keychain, not the iOS keychain
+uuencode ${OPENVPN_INSTALL}/keys/client-domainname.p12 client-domainname.ovpn12 | mail -s "client-domainname.ovpn12" myself@myemail.com
 
 # Transfer the client OpenVPN file openvpn-client-tun.ovpn
-# to the OpenVPN app using iTunes, Device>Apps>File Sharing>Add...
-open -a iTunes
+# to the OpenVPN app using macOS Finder with AirDrop or iOS Syncing
 
 # Launch the OpenVPN app and toggle the "Connect" button
 
